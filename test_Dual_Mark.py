@@ -22,6 +22,11 @@ test
 criterion_LPIPS = lpips.LPIPS().to("cuda")
 
 def seed_torch(seed=42):
+    """
+    设置随机种子以确保实验的可重复性
+    参数:
+        seed (int): 随机种子值
+    """
     seed = int(seed)
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -34,10 +39,20 @@ def seed_torch(seed=42):
 
 
 def get_path(path="temp/"):
+    """
+    生成一个随机的文件路径
+    参数:
+        path (str): 文件路径的前缀
+    返回:
+        str: 生成的文件路径
+    """
     return path + ''.join(random.sample(string.ascii_letters + string.digits, 16)) + ".png"
 
 
 def main():
+    """
+    主函数，执行测试过程
+    """
 
     seed_torch(42)
 
@@ -65,7 +80,8 @@ def main():
     dataset_path = args.dataset_path
     save_images_number = args.save_images_number
     noise_layers_R = args.noise_layers.pool_R
-    noise_layers_F = args.noise_layers.pool_F
+    # noise_layers_F = args.noise_layers.pool_F
+    noise_layers_F = []
 
     test_log = result_folder + "test_log" + time.strftime("%_Y_%m_%d__%H_%M_%S", time.localtime()) + ".txt"
     copyfile("cfg/test_DualMark.yaml", result_folder + "test_DualMark" + time.strftime("_%Y_%m_%d__%H_%M_%S", time.localtime()) + ".yaml")

@@ -16,9 +16,9 @@ from .jpeg import JpegTest
 from .resize import Resize
 from .kornia_noises import GaussianBlur, GaussianNoise, MedianBlur, Brightness, Contrast, Saturation, Hue, Rotation, Affine
 ############################################
-from .simswap.test_one_image import SimSwap
-from network.noise_layers.faceswap.face_swap import FaceSwap
-from .ganimation.main import GANimation
-from .stargan.main import StarGAN
+# from .simswap.test_one_image import SimSwap
+# from network.noise_layers.faceswap.face_swap import FaceSwap
+# from .ganimation.main import GANimation
+# from .stargan.main import StarGAN
 #from .mobilefaceswap.image_test import MobileFaceSwap
 #from .roop.ROOP import ROOP
