@@ -4,14 +4,15 @@ class DW_Encoder(nn.Module):
 
     def __init__(self, message_length, blocks=2, channels=64, attention=None):
         super(DW_Encoder, self).__init__()
-
+        
+        # %% 定义双卷积块和四个下采样块
         self.conv1 = ConvBlock(3, 16, blocks=blocks)
         self.down1 = Down(16, 32, blocks=blocks)
         self.down2 = Down(32, 64, blocks=blocks)
         self.down3 = Down(64, 128, blocks=blocks)
-
         self.down4 = Down(128, 256, blocks=blocks)
 
+        # %% 对应论文中，把信息上采样为 LxL，增加信息存活的概率
         self.up3 = UP(256, 128)
         self.linear3 = nn.Linear(message_length, message_length * message_length)
         self.Conv_message3 = ConvBlock(1, channels, blocks=blocks)
@@ -32,6 +33,7 @@ class DW_Encoder(nn.Module):
         self.Conv_message0 = ConvBlock(1, channels, blocks=blocks)
         self.att0 = ResBlock(16 * 2 + channels, 16, blocks=blocks, attention=attention)
 
+        # %% 编码器的最后一步下采样
         self.Conv_1x1 = nn.Conv2d(16 + 3, 3, kernel_size=1, stride=1, padding=0)
 
         self.message_length = message_length
@@ -104,6 +106,9 @@ class DW_Encoder(nn.Module):
 
 
 class Down(nn.Module):
+    '''
+    下采样层
+    '''
     def __init__(self, in_channels, out_channels, blocks):
         super(Down, self).__init__()
         self.layer = torch.nn.Sequential(
@@ -116,6 +121,9 @@ class Down(nn.Module):
 
 
 class UP(nn.Module):
+    '''
+    上采样层
+    '''
     def __init__(self, in_channels, out_channels):
         super(UP, self).__init__()
         self.conv = ConvBlock(in_channels, out_channels)

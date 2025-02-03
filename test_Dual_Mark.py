@@ -66,6 +66,7 @@ def main():
     strength_factor = args.strength_factor
     with_mask = args.with_mask
     noise_layer = args.noise_layer
+    
 
     with open(result_folder + '/train_DualMark.yaml', 'r') as f:
         args = EasyDict(yaml.load(f, Loader=yaml.SafeLoader))
@@ -82,6 +83,7 @@ def main():
     noise_layers_R = args.noise_layers.pool_R
     # noise_layers_F = args.noise_layers.pool_F
     noise_layers_F = []
+    
 
     test_log = result_folder + "test_log" + time.strftime("%_Y_%m_%d__%H_%M_%S", time.localtime()) + ".txt"
     copyfile("cfg/test_DualMark.yaml", result_folder + "test_DualMark" + time.strftime("_%Y_%m_%d__%H_%M_%S", time.localtime()) + ".yaml")
@@ -91,6 +93,7 @@ def main():
     EC_path = result_folder + "models/EC_" + str(model_epoch) + ".pth"
     network.load_model_ed(EC_path)
 
+    # 似乎是通过这里判断是否执行测试
     if noise_layer[0:len("StarGAN")] != "StarGAN":
         test_dataset = maskImgDataset(os.path.join(dataset_path, "test_256"), image_size)
     else:
