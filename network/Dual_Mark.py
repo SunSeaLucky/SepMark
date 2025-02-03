@@ -243,7 +243,25 @@ class Network:
 		self.load_model_dis(path_discriminator)
 
 	def load_model_ed(self, path_encoder_decoder: str):
+		"""
+		加载编码器-解码器模型的状态字典。
+
+		参数:
+		path_encoder_decoder (str): 编码器-解码器模型状态字典的文件路径。
+
+		返回:
+		无返回值。
+		"""
 		self.encoder_decoder.module.load_state_dict(torch.load(path_encoder_decoder), strict=False)
 
 	def load_model_dis(self, path_discriminator: str):
+		"""
+		加载判别器模型的状态字典。
+
+		参数:
+		path_discriminator (str): 判别器模型的路径。
+
+		返回:
+		无返回值。
+		"""
 		self.discriminator.module.load_state_dict(torch.load(path_discriminator))

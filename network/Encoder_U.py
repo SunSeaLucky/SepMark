@@ -45,6 +45,7 @@ class DW_Encoder(nn.Module):
 
 
     def forward(self, x, watermark):
+        # %% 通过一个卷积块，四个下采样块
         d0 = self.conv1(x)
         d1 = self.down1(d0)
         d2 = self.down2(d1)
@@ -52,6 +53,7 @@ class DW_Encoder(nn.Module):
 
         d4 = self.down4(d3)
 
+        # %% 对应论文中，把信息上采样为 LxL，增加信息存活的概率
         u3 = self.up3(d4)
         expanded_message = self.linear3(watermark)
         expanded_message = expanded_message.view(-1, 1, self.message_length, self.message_length)
@@ -87,7 +89,8 @@ class DW_Encoder(nn.Module):
         expanded_message = self.Conv_message0(expanded_message)
         u0 = torch.cat((d0, u0, expanded_message), dim=1)
         u0 = self.att0(u0)
-
+        
+        # %% 编码器的最后一步下采样
         image = self.Conv_1x1(torch.cat((x, u0), dim=1))
 
         forward_image = image.clone().detach()
@@ -101,7 +104,8 @@ class DW_Encoder(nn.Module):
 
         gap = read_image - forward_image'''
         gap = forward_image.clamp(-1, 1) - forward_image
-
+        
+        # 返回噪音图片
         return image + gap
 
 

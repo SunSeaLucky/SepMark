@@ -54,6 +54,7 @@ def main():
     主函数，执行测试过程
     """
 
+    # %% 设置随机种子、初始化参数
     seed_torch(42)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -84,7 +85,7 @@ def main():
     # noise_layers_F = args.noise_layers.pool_F
     noise_layers_F = []
     
-
+    # %% 创建结果和日志文件夹、加载模型
     test_log = result_folder + "test_log" + time.strftime("%_Y_%m_%d__%H_%M_%S", time.localtime()) + ".txt"
     copyfile("cfg/test_DualMark.yaml", result_folder + "test_DualMark" + time.strftime("_%Y_%m_%d__%H_%M_%S", time.localtime()) + ".yaml")
     writer = SummaryWriter('runs/' + result_folder + noise_layer + time.strftime("%_Y_%m_%d__%H_%M_%S", time.localtime()))
@@ -93,7 +94,7 @@ def main():
     EC_path = result_folder + "models/EC_" + str(model_epoch) + ".pth"
     network.load_model_ed(EC_path)
 
-    # 似乎是通过这里判断是否执行测试
+    # %% 加载测试数据集
     if noise_layer[0:len("StarGAN")] != "StarGAN":
         test_dataset = maskImgDataset(os.path.join(dataset_path, "test_256"), image_size)
     else:
@@ -135,9 +136,10 @@ def main():
                 transforms.ToTensor(),
                 transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
             ])
-
+            # %% Detach 操作（应该
             ##################################################################
             for index in range(encoded_images.shape[0]):
+                # 存了之后又读，看起来很像文中的 Detach 操作
                 single_image = ((encoded_images[index].clamp(-1, 1).permute(1, 2, 0) + 1) / 2 * 255).add(0.5).clamp(0,255).to('cpu', torch.uint8).numpy()
                 im = Image.fromarray(single_image)
                 file = get_path()
@@ -149,13 +151,15 @@ def main():
 
                 encoded_images[index] = transform(read).unsqueeze(0).to(image.device)
             ##################################################################
-            # psnr
+            
+            # %% 评估编码图像与原始图像之间的相似性
+            # psnr，Peak Signal-to-Noise Ratio，峰值信噪比。传统的图像质量评估指标
             psnr = - kornia.losses.psnr_loss(encoded_images.detach(), images, 2).item()
 
-            # ssim
+            # ssim，Structural Similarity Index Measure，结构相似性指数。传统的图像质量评估指标
             ssim = 1 - 2 * kornia.losses.ssim_loss(encoded_images.detach(), images, window_size=11, reduction="mean").item()
 
-            # lpips
+            # lpips，Learned Perceptual Image Patch Similarity，学习感知图像补丁相似性。传统的图像质量评估指标
             lpips = torch.mean(criterion_LPIPS(encoded_images.detach(), images)).item()
 
             #noised_images_C, noised_images_R, noised_images_F = network.encoder_decoder.module.noise([encoded_images, images, masks])
